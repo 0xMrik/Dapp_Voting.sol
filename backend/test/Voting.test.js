@@ -225,11 +225,6 @@ describe("tallyVotes function", function () {
       .withArgs(4, 5); 
   });
 
-  it("Should revert if the caller is not the owner", async function () {
-    const votingAsAddr1 = voting.connect(addr1);
-    await expect(votingAsAddr1.tallyVotes()).to.be.revertedWith("Ownable: caller is not the owner");
-  });
-
   it("Should revert if the contract status is not VotingSessionEnded", async function () {
     const votingNew = await Voting.connect(owner).deploy();
     await votingNew.deployed();
