@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { ethers } from 'ethers';
+import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { Button, Input, VStack, useToast } from '@chakra-ui/react';
-import { useContract } from '../../hooks/useContract';
 
 const ProposalsRegistration = () => {
-    const { contract, error } = useContract();
     const [description, setDescription] = useState('');
     const toast = useToast();
 
@@ -17,7 +17,10 @@ const ProposalsRegistration = () => {
                     duration: 5000,
                     isClosable: true,
                 });
-            } else if (contract) {
+            } else if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
                 const transaction = await contract.addProposal(description);
                 await transaction.wait();
                 toast({

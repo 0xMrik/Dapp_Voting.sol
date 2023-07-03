@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Button, VStack, useToast } from '@chakra-ui/react';
-import { useContract } from '../../hooks/useContract';
+import React, { useState } from 'react';
+import { Button, Input, VStack, useToast } from '@chakra-ui/react';
+import { ethers } from 'ethers';
+import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 
 const Voting = () => {
-    const { contract, error } = useContract();
     const [proposalId, setProposalId] = useState('');
     const toast = useToast();
 
@@ -17,8 +17,11 @@ const Voting = () => {
                     duration: 5000,
                     isClosable: true,
                 });
-            } else if (contract) {
-                const transaction = await contract.vote(proposalId);
+            } else if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
+                const transaction = await contract.setVote(proposalId);
                 await transaction.wait();
                 toast({
                     title: 'Succès',
@@ -27,7 +30,7 @@ const Voting = () => {
                     duration: 5000,
                     isClosable: true,
                 });
-                setProposalId(''); // Clear the input field
+                setProposalId(''); 
             }
         } catch (err) {
             console.error(err);

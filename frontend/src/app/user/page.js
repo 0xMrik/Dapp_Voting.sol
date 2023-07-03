@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
-import { VStack, Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
+import { Text, Spinner, Box, Flex } from '@chakra-ui/react';
 import Header from '../../components/Common/Header/Header'
 import Status from '../../components/Common/Status/Status'
 import ProposalsRegistration from '../../components/User_side/ProposalsRegistration';
 import Voting from '../../components/User_side/Voting';
+import VoteResult from '../../components/Common/Result/VoteResult';
 
 const PageUser = () => {
     const [status, setStatus] = useState(null);
@@ -18,7 +19,8 @@ const PageUser = () => {
             try {
                 if (window.ethereum) {
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
+                    const signer = provider.getSigner();
+                    const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
                     const status = await contract.workflowStatus();
                     setStatus(status);
                 }
@@ -41,9 +43,19 @@ const PageUser = () => {
             case 3:
                 return <Voting />;
             case 4:
-                return <VoteResult />;
+                return (
+                    <Flex direction="column" align="center">
+                        <VoteResult />
+                        <Text>Workflow finished</Text>
+                    </Flex>
+                );
             default:
-                return <Text>Workflow finished</Text>;
+                return (
+                    <Flex direction="column" align="center">
+                        <Text>Workflow finished</Text>
+                        <VoteResult />
+                    </Flex>
+                );
         }
     };
 

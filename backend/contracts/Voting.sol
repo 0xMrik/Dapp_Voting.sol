@@ -160,7 +160,7 @@ contract Voting is Ownable {
     /**
      * @dev Compte les votes et détermine la proposition gagnante
      */
-    function tallyVotes() external onlyOwner {
+    function tallyVotes() external {
         require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
         
         workflowStatus = WorkflowStatus.VotesTallied;
