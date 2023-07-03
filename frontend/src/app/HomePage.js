@@ -28,7 +28,7 @@ const HomePage = () => {
           throw new Error('Veuillez connecter votre wallet');
         }
       } catch (err) {
-        setError(err.message);
+        setError('Erreur lors de la vérification du propriétaire du contrat. Veuillez réessayer ultérieurement.');
       } finally {
         setLoading(false);
       }
