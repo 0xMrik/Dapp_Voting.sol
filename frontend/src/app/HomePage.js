@@ -20,7 +20,7 @@ const HomePage = () => {
           setUserAddress(address);
 
           const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider); // Use the correct contract address here
+          const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, provider); // Use the correct contract address here
           const owner = await contract.owner();
           
           setIsOwner(address.toLowerCase() === owner.toLowerCase());

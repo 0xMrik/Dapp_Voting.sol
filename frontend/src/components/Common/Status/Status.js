@@ -10,7 +10,7 @@ const Status = () => {
     const fetchStatus = async () => {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
+        const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, provider);
         const status = await contract.workflowStatus();
         setStatus(status);
       }

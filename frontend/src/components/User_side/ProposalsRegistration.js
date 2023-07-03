@@ -20,7 +20,7 @@ const ProposalsRegistration = () => {
             } else if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
-                const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
+                const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, signer);
                 const transaction = await contract.addProposal(description);
                 await transaction.wait();
                 toast({
