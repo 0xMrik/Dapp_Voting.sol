@@ -1,7 +1,12 @@
+"use client"
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import VotingContract from '../../../backend/artifacts/contracts/Voting.sol/Voting.json';
+import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { VStack, Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
+import Header from '../../components/Common/Header/Header'
+import Status from '../../components/Common/Status/Status'
+import ProposalsRegistration from '../../components/User_side/ProposalsRegistration';
+import Voting from '../../components/User_side/Voting';
 
 const PageUser = () => {
     const [status, setStatus] = useState(null);

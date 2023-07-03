@@ -70,7 +70,7 @@ const HomePage = () => {
                 <AlertIcon boxSize="40px" mr={0} />
                 <AlertTitle mt={4} mb={1} fontSize="lg">Vous êtes un votant!</AlertTitle>
               </Alert>
-              <Link href="/User" passHref>
+              <Link href="/user" passHref>
                 <Button colorScheme="blue" size="lg">
                   Aller à la page de vote
                 </Button>
