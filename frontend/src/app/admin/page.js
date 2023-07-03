@@ -40,8 +40,12 @@ const Page = () => {
     if (window.ethereum) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
-
+      const contract = new ethers.Contract(
+        '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        VotingContract.abi,
+        signer
+      );
+  
       let transaction;
       if (status < 5) {
         switch (status) {
@@ -52,20 +56,24 @@ const Page = () => {
             transaction = await contract.endProposalsRegistering();
             break;
           case 2: // WorkflowStatus.ProposalsRegistrationEnded
-            transaction = await contract.startVotingSession();
+            if (await contract.workflowStatus() === 2) {
+              transaction = await contract.startVotingSession();
+            }
             break;
           case 3: // WorkflowStatus.VotingSessionStarted
             transaction = await contract.endVotingSession();
             break;
           case 4: // WorkflowStatus.VotingSessionEnded
-            transaction = await contract.tallyVotes();
+            if (await contract.workflowStatus() === 4) {
+              transaction = await contract.tallyVotes();
+            }
             break;
           default:
             console.log('The workflow is already finished.');
             break;
         }
       }
-
+  
       if (transaction) {
         await transaction.wait();
         setStatus((prevStatus) => prevStatus + 1);
@@ -75,14 +83,15 @@ const Page = () => {
 
   const getComponent = () => {
     switch (status) {
-      case 0:
+      case 0: // WorkflowStatus.RegisteringVoters
         return <RegisterVoter advanceWorkflow={advanceWorkflow} />;
-      case 1:
+      case 1: // WorkflowStatus.ProposalsRegistrationStarted
+      case 2: // WorkflowStatus.ProposalsRegistrationEnded
         return <ProposalsRegistration advanceWorkflow={advanceWorkflow} />;
-      case 2:
-      case 3:
+      case 3: // WorkflowStatus.VotingSessionStarted
+      case 4: // WorkflowStatus.VotingSessionEnded
         return <Voting advanceWorkflow={advanceWorkflow} />;
-      case 4:
+      case 5: // WorkflowStatus.VotesTallied
         return <VoteResult />;
       default:
         return (
