@@ -7,7 +7,8 @@ import ProposalsRegistration from '../../components/Admin_side/ProposalsRegistra
 import Voting from '../../components/Admin_side/Voting';
 import Header from '../../components/Common/Header/Header';
 import Status from '../../components/Common/Status/Status';
-import { VStack, Text, Spinner, Button, Flex, Divider, Box } from '@chakra-ui/react';
+import VoteResult from '../../components/Common/Result/VoteResult';
+import { VStack, Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
 
 const Page = () => {
   const [status, setStatus] = useState(null);
@@ -68,22 +69,21 @@ const Page = () => {
     }
   };
 
-  let component;
-  
-  switch (status) {
-    case 0:
-      component = <RegisterVoter />;
-      break;
-    case 1:
-      component = <ProposalsRegistration />;
-      break;
-    case 2:
-    case 3:
-      component = <Voting />;
-      break;
-    default:
-      component = <Text>Workflow finished</Text>;
-  }
+  const getComponent = () => {
+    switch (status) {
+      case 0:
+        return <RegisterVoter advanceWorkflow={advanceWorkflow} />;
+      case 1:
+        return <ProposalsRegistration advanceWorkflow={advanceWorkflow} />;
+      case 2:
+      case 3:
+        return <Voting advanceWorkflow={advanceWorkflow} />;
+      case 4:
+        return <VoteResult />;
+      default:
+        return <Text>Workflow finished</Text>;
+    }
+  };
 
   if (loading) {
     return <Spinner size="xl" />;
@@ -108,10 +108,10 @@ const Page = () => {
         boxShadow="md" 
         backgroundColor="gray.50"
       >
-      {component}
+      {getComponent()}
       </Box>
     </div>
-  );
+);
 }
 
 export default Page;

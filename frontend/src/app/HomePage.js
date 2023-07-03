@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Link from 'next/link';
@@ -15,14 +16,16 @@ const HomePage = () => {
     const checkOwner = async () => {
       try {
         if (window.ethereum) {
-          const [address] = await window.ethereum.request({ method: 'eth_accounts' });
+          const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request access to account
           setUserAddress(address);
 
           const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
+          const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider); // Use the correct contract address here
           const owner = await contract.owner();
           
           setIsOwner(address.toLowerCase() === owner.toLowerCase());
+        } else {
+          throw new Error('Veuillez connecter votre wallet');
         }
       } catch (err) {
         setError(err.message);
@@ -76,7 +79,7 @@ const HomePage = () => {
           )}
         </>
       ) : (
-        <Text>Veuillez vous connecter pour continuer.</Text>
+        <Text>Veuillez connecter votre wallet pour continuer.</Text>
       )}
     </VStack>
   );

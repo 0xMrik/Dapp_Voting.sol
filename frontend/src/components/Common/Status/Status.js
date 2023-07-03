@@ -12,13 +12,12 @@ const Status = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
         const status = await contract.workflowStatus();
-
         setStatus(status);
       }
     };
 
     fetchStatus();
-  }, []);
+  }, []);  
 
   const statusMapping = {
     0: 'Registering Voters',

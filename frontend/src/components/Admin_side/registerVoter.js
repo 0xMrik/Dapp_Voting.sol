@@ -1,55 +1,28 @@
-import { ethers } from 'ethers';
-import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { useState, useEffect } from 'react';
 import { Button, Input, VStack, Text, useToast, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
+import useContract from '../../hooks/useContract';
 
 const RegisterVoter = () => {
+  const { contract, error } = useContract();
   const [address, setAddress] = useState('');
   const [isOwner, setIsOwner] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [voters, setVoters] = useState([]);
   const toast = useToast();
 
   useEffect(() => {
     const checkOwner = async () => {
       try {
-        if (window.ethereum) {
+        if (contract) {
           const [currentUser] = await window.ethereum.request({ method: 'eth_accounts' });
-
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
           const owner = await contract.owner();
-
           setIsOwner(currentUser.toLowerCase() === owner.toLowerCase());
         }
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
-
-    const fetchVoters = async () => {
-      if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, provider);
-
-        const votersCount = await contract.getVotersCount();
-        const voters = [];
-
-        for (let i = 0; i < votersCount; i++) {
-          const voter = await contract.getVoterByIndex(i);
-          voters.push(voter);
-        }
-
-        setVoters(voters);
-      }
-    };
-
     checkOwner();
-    fetchVoters();
-  }, []);
+  }, [contract]);
 
   useEffect(() => {
     const savedVoters = JSON.parse(localStorage.getItem('voters'));
@@ -72,13 +45,8 @@ const RegisterVoter = () => {
           duration: 5000,
           isClosable: true,
         });
-      } else if (window.ethereum) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
-  
+      } else if (contract) {
         const voter = await contract.getVoter(address);
-  
         if (voter.isRegistered) {
           toast({
             title: 'Erreur',
@@ -88,9 +56,10 @@ const RegisterVoter = () => {
             isClosable: true,
           });
         } else {
-          const transaction = await contract.addVoter(address);
+          const signer = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const updatedContract = contract.connect(signer[0]);
+          const transaction = await updatedContract.addVoter(address);
           await transaction.wait();
-  
           toast({
             title: 'Succès',
             description: `Votant ${address} enregistré.`,
@@ -98,8 +67,6 @@ const RegisterVoter = () => {
             duration: 5000,
             isClosable: true,
           });
-          console.log(`Voter ${address} registered`);
-  
           const updatedVoters = [...voters, { address }];
           setVoters(updatedVoters);
         }
@@ -110,7 +77,7 @@ const RegisterVoter = () => {
     }
   };
 
-  if (loading) {
+  if (!contract) {
     return <Text>Loading...</Text>;
   }
 
