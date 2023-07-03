@@ -4,6 +4,7 @@ import VotingContract from '../../../backend/artifacts/contracts/Voting.sol/Voti
 
 export function useContract() {
   const [contract, setContract] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (window.ethereum) {
@@ -14,8 +15,10 @@ export function useContract() {
         provider
       );
       setContract(contract);
+    } else {
+      setError('Ethereum provider not found');
     }
   }, []);
 
-  return contract;
+  return { contract, error };
 }

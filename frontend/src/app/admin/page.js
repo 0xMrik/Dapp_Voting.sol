@@ -8,7 +8,7 @@ import Voting from '../../components/Admin_side/Voting';
 import Header from '../../components/Common/Header/Header';
 import Status from '../../components/Common/Status/Status';
 import VoteResult from '../../components/Common/Result/VoteResult';
-import { VStack, Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
+import { Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
 
 const Page = () => {
   const [status, setStatus] = useState(null);
@@ -35,36 +35,37 @@ const Page = () => {
     fetchStatus();
   }, []);
 
-  const advanceWorkflow = async () => {
+  async function advanceWorkflow() {
     if (window.ethereum) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
-
+  
       let transaction;
       switch (status) {
-        case 0:
+        case 0: // WorkflowStatus.RegisteringVoters
           transaction = await contract.startProposalsRegistering();
           break;
-        case 1:
+        case 1: // WorkflowStatus.ProposalsRegistrationStarted
           transaction = await contract.endProposalsRegistering();
           break;
-        case 2:
+        case 2: // WorkflowStatus.ProposalsRegistrationEnded
           transaction = await contract.startVotingSession();
           break;
-        case 3:
+        case 3: // WorkflowStatus.VotingSessionStarted
           transaction = await contract.endVotingSession();
           break;
-        case 4:
+        case 4: // WorkflowStatus.VotingSessionEnded
           transaction = await contract.tallyVotes();
           break;
         default:
           console.log("The workflow is already finished.");
+          break;
       }
-
+  
       if (transaction) {
         await transaction.wait();
-        setStatus(status + 1);
+        setStatus((prevStatus) => prevStatus + 1);
       }
     }
   };

@@ -1,35 +1,29 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.18;
+pragma solidity 0.8.0;
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title Voting
-/// @author 0xMrik
-/// @dev This contract allows users to register, propose, and vote. The proposal with the most votes is selected as the winner.
-/// @inheritdoc Ownable
-
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
-
-
+/**
+ * @title Voting
+ * @dev Implemente un système de vote simple
+ */
 contract Voting is Ownable {
 
-    /// @notice The ID of the proposal with the most votes
     uint public winningProposalID;
-    
-    /// @notice Voter details
+    uint public winningProposalVotes; // Nouvelle variable pour stocker les votes de la proposition gagnante
+
     struct Voter {
         bool isRegistered;
         bool hasVoted;
         uint votedProposalId;
     }
 
-    /// @notice Proposal details
     struct Proposal {
         string description;
         uint voteCount;
     }
 
-    /// @notice The current stage of the voting process
-    enum  WorkflowStatus {
+    enum WorkflowStatus {
         RegisteringVoters,
         ProposalsRegistrationStarted,
         ProposalsRegistrationEnded,
@@ -42,51 +36,39 @@ contract Voting is Ownable {
     Proposal[] proposalsArray;
     mapping (address => Voter) voters;
 
-    /// @notice An event emitted when a voter is registered
+
     event VoterRegistered(address voterAddress); 
-
-    /// @notice An event emitted when the workflow status changes
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
-
-    /// @notice An event emitted when a proposal is registered
     event ProposalRegistered(uint proposalId);
-
-    /// @notice An event emitted when a vote is cast
     event Voted (address voter, uint proposalId);
-    
+
+    /**
+     * @dev Modifier pour s'assurer que l'appelant est un électeur
+     */
     modifier onlyVoters() {
         require(voters[msg.sender].isRegistered, "You're not a voter");
         _;
     }
     
-
-    // ::::::::::::: GETTERS ::::::::::::: //
-
     /**
-     * @notice Returns the details of a voter
-     * @param _addr The address of the voter
-     * @return The Voter struct associated with the address
+     * @dev Renvoie les détails d'un électeur spécifique
+     * @param _addr L'adresse de l'électeur
      */
     function getVoter(address _addr) external onlyVoters view returns (Voter memory) {
         return voters[_addr];
     }
     
     /**
-     * @notice Returns the details of a proposal
-     * @param _id The ID of the proposal
-     * @return The Proposal struct associated with the ID
+     * @dev Renvoie les détails d'une proposition spécifique
+     * @param _id L'ID de la proposition
      */
     function getOneProposal(uint _id) external onlyVoters view returns (Proposal memory) {
         return proposalsArray[_id];
     }
 
- 
-    // ::::::::::::: REGISTRATION ::::::::::::: // 
-
     /**
-     * @notice Adds a voter to the contract
-     * @dev Only the owner can add a voter
-     * @param _addr The address of the voter to add
+     * @dev Enregistre un nouvel électeur
+     * @param _addr L'adresse de l'électeur
      */
     function addVoter(address _addr) external onlyOwner {
         require(workflowStatus == WorkflowStatus.RegisteringVoters, 'Voters registration is not open yet');
@@ -97,17 +79,13 @@ contract Voting is Ownable {
     }
  
 
-    // ::::::::::::: PROPOSAL ::::::::::::: // 
-
     /**
-     * @notice Adds a proposal to the contract
-     * @dev Only registered voters can add a proposal
-     * @param _desc The description of the proposal
+     * @dev Ajoute une nouvelle proposition
+     * @param _desc La description de la proposition
      */
     function addProposal(string calldata _desc) external onlyVoters {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationStarted, 'Proposals are not allowed yet');
-        require(keccak256(abi.encode(_desc)) != keccak256(abi.encode("")), 'Vous ne pouvez pas ne rien proposer'); // facultatif
-        // voir que desc est different des autres
+        require(keccak256(abi.encode(_desc)) != keccak256(abi.encode("")), 'Vous ne pouvez pas ne rien proposer');
 
         Proposal memory proposal;
         proposal.description = _desc;
@@ -115,28 +93,32 @@ contract Voting is Ownable {
         emit ProposalRegistered(proposalsArray.length-1);
     }
 
-    // ::::::::::::: VOTE ::::::::::::: //
-
-     /**
-     * @notice Allows a voter to vote for a proposal
-     * @dev Only registered voters who have not already voted can vote
-     * @param _id The ID of the proposal to vote for
+    /**
+     * @dev Enregistre le vote d'un électeur pour une proposition spécifique
+     * @param _id L'ID de la proposition
      */
     function setVote( uint _id) external onlyVoters {
         require(workflowStatus == WorkflowStatus.VotingSessionStarted, 'Voting session havent started yet');
         require(voters[msg.sender].hasVoted != true, 'You have already voted');
-        require(_id < proposalsArray.length, 'Proposal not found'); // pas obligé, et pas besoin du >0 car uint
+        require(_id < proposalsArray.length, 'Proposal not found');
 
         voters[msg.sender].votedProposalId = _id;
         voters[msg.sender].hasVoted = true;
         proposalsArray[_id].voteCount++;
 
+// Nouvelle logique pour déterminer la proposition gagnante pendant le processus de vote, plutôt que lors du décompte final.
+// Cela permet d'éviter une boucle qui pourrait être coûteuse en gaz et potentiellement vulnérable à un DoS.
+        if(proposalsArray[_id].voteCount > winningProposalVotes) {
+            winningProposalVotes = proposalsArray[_id].voteCount;
+            winningProposalID = _id;
+        }
+
         emit Voted(msg.sender, _id);
     }
 
-    // ::::::::::::: STATE ::::::::::::: //
-
-    /// @notice Starts the proposal registration phase
+    /**
+     * @dev Commence la phase d'enregistrement des propositions
+     */
     function startProposalsRegistering() external onlyOwner {
         require(workflowStatus == WorkflowStatus.RegisteringVoters, 'Registering proposals cant be started now');
         workflowStatus = WorkflowStatus.ProposalsRegistrationStarted;
@@ -148,44 +130,40 @@ contract Voting is Ownable {
         emit WorkflowStatusChange(WorkflowStatus.RegisteringVoters, WorkflowStatus.ProposalsRegistrationStarted);
     }
 
-    /// @notice Ends the proposal registration phase
+    /**
+     * @dev Termine la phase d'enregistrement des propositions
+     */
     function endProposalsRegistering() external onlyOwner {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationStarted, 'Registering proposals havent started yet');
         workflowStatus = WorkflowStatus.ProposalsRegistrationEnded;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationStarted, WorkflowStatus.ProposalsRegistrationEnded);
     }
 
-    /// @notice Starts the voting session
+    /**
+     * @dev Commence la phase de vote
+     */
     function startVotingSession() external onlyOwner {
         require(workflowStatus == WorkflowStatus.ProposalsRegistrationEnded, 'Registering proposals phase is not finished');
         workflowStatus = WorkflowStatus.VotingSessionStarted;
         emit WorkflowStatusChange(WorkflowStatus.ProposalsRegistrationEnded, WorkflowStatus.VotingSessionStarted);
     }
 
-    /// @notice Ends the voting session
+    /**
+     * @dev Termine la phase de vote
+     */
     function endVotingSession() external onlyOwner {
         require(workflowStatus == WorkflowStatus.VotingSessionStarted, 'Voting session havent started yet');
         workflowStatus = WorkflowStatus.VotingSessionEnded;
         emit WorkflowStatusChange(WorkflowStatus.VotingSessionStarted, WorkflowStatus.VotingSessionEnded);
     }
 
-    // ::::::::::::: FINAL RESULT ::::::::::::: //
-
-       /**
-     * @notice Tally the votes and determine the winning proposal
-     * @dev Only the owner can tally the votes
+    /**
+     * @dev Compte les votes et détermine la proposition gagnante
      */
-   function tallyVotes() external onlyOwner {
-       require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
-       uint _winningProposalId;
-      for (uint256 p = 0; p < proposalsArray.length; p++) {
-           if (proposalsArray[p].voteCount > proposalsArray[_winningProposalId].voteCount) {
-               _winningProposalId = p;
-          }
-       }
-       winningProposalID = _winningProposalId;
-       
-       workflowStatus = WorkflowStatus.VotesTallied;
-       emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
+    function tallyVotes() external onlyOwner {
+        require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
+        
+        workflowStatus = WorkflowStatus.VotesTallied;
+        emit WorkflowStatusChange(WorkflowStatus.VotingSessionEnded, WorkflowStatus.VotesTallied);
     }
 }

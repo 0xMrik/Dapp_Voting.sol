@@ -14,7 +14,13 @@ const Voting = () => {
     const fetchProposals = async () => {
       try {
         if (contract) {
-          const proposals = [];  // Fetch proposals from contract
+          const proposalCount = await contract.proposalsArray.length;
+          const proposals = [];
+          
+          for (let i = 0; i < proposalCount; i++) {
+            const proposal = await contract.getOneProposal(i);
+            proposals.push(proposal);
+          }
 
           setProposals(proposals);
         }
@@ -49,7 +55,7 @@ const Voting = () => {
           {proposals.map((proposal, index) => (
             <Tr key={index}>
               <Td>{proposal.description}</Td>
-              <Td>{proposal.voteCount}</Td>
+              <Td>{proposal.voteCount.toString()}</Td>
             </Tr>
           ))}
         </Tbody>

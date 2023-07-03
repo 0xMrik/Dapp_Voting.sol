@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Input, VStack, Text, useToast, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
-import {useContract} from '../../hooks/useContract';
+import { useContract } from '../../hooks/useContract';
 
 const RegisterVoter = () => {
   const { contract, error } = useContract();
@@ -37,6 +37,7 @@ const RegisterVoter = () => {
 
   const registerVoter = async () => {
     try {
+      const workflowStatus = await contract.workflowStatus();
       if (!address) {
         toast({
           title: 'Erreur',
@@ -45,7 +46,7 @@ const RegisterVoter = () => {
           duration: 5000,
           isClosable: true,
         });
-      } else if (contract) {
+      } else if (contract && workflowStatus === 0) { // Check if workflow status is RegisteringVoters
         const voter = await contract.getVoter(address);
         if (voter.isRegistered) {
           toast({
@@ -70,6 +71,14 @@ const RegisterVoter = () => {
           const updatedVoters = [...voters, { address }];
           setVoters(updatedVoters);
         }
+      } else {
+        toast({
+          title: 'Erreur',
+          description: 'Vous ne pouvez pas enregistrer un nouvel électeur à ce moment.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (err) {
       console.error(err);
