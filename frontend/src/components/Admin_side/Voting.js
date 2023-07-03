@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { VStack, Text, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
-import useContract from '../../hooks/useContract';
+import {useContract} from '../../hooks/useContract';
 
 const Voting = () => {
   const contract = useContract();

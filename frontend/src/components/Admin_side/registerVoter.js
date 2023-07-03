@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Input, VStack, Text, useToast, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
-import useContract from '../../hooks/useContract';
+import {useContract} from '../../hooks/useContract';
 
 const RegisterVoter = () => {
   const { contract, error } = useContract();
