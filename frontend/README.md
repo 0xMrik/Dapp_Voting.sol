@@ -1,34 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Voting DApp
+===========
 
-## Getting Started
+Ce projet est une application décentralisée (DApp) de vote construite avec [Next.js](https://nextjs.org/) et [Ethereum](https://ethereum.org/). Il utilise un contrat intelligent Ethereum pour gérer le processus de vote.
 
-First, run the development server:
+Prérequis
+---------
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+*   Node.js et npm installés sur votre machine.
+*   Un compte Ethereum avec des fonds pour le déploiement du contrat (vous pouvez obtenir des Ether gratuits pour le développement sur les réseaux de test Ethereum).
+*   Un fournisseur Ethereum comme [Infura](https://infura.io/).
+*   [Hardhat](https://hardhat.org/) pour le déploiement du contrat.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mise en place
+-------------
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1.  Clonez ce dépôt sur votre machine locale.
+2.  Installez les dépendances du projet en exécutant `npm install` dans le répertoire du projet.
+3.  Créez un fichier `.env` à la racine du projet et ajoutez-y les variables d'environnement suivantes :
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+    
+    PRIVATE_KEY=your_private_key
+    INFURA_PROJECT_ID=your_infura_project_id
+    
 
-## Learn More
+Remplacez `your_private_key` par la clé privée de votre compte Ethereum et `your_infura_project_id` par l'ID de votre projet Infura.
 
-To learn more about Next.js, take a look at the following resources:
+4.  Déployez le contrat intelligent en exécutant `npx hardhat run scripts/deploy.js --network rinkeby`. Remplacez `rinkeby` par le réseau Ethereum de votre choix.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Démarrage du serveur de développement
+-------------------------------------
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Exécutez `npm run dev` pour démarrer le serveur de développement. Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur pour voir l'application.
 
-## Deploy on Vercel
+Utilisation de l'application
+----------------------------
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+L'application permet aux utilisateurs de s'inscrire en tant qu'électeurs, de proposer des options de vote, de voter pour des propositions et de voir le résultat du vote.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Contrat déployé
+---------------
+
+Le contrat Voting a été déployé à l'adresse suivante : `0x53B9ee3f3E7A6785770bA00b44866D589e73E8E7` par le compte `0x48302C82e46e28c839d29eD2c3b4a27f04B44B1c`.
+
+En savoir plus
+--------------
+
+Pour en savoir plus sur Next.js, consultez les ressources suivantes :
+
+*   [Documentation de Next.js](https://nextjs.org/docs) - Apprenez-en plus sur les fonctionnalités et l'API de Next.js.
+*   [Apprendre Next.js](https://nextjs.org/learn) - Un tutoriel interactif sur Next.js.
+
+Déploiement sur Vercel
+----------------------
+
+La manière la plus simple de déployer votre application Next.js est d'utiliser la [Plateforme Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) des créateurs de Next.js.
+
+Consultez notre [documentation sur le déploiement de Next.js](https://nextjs.org/docs/deployment) pour plus de détails.
