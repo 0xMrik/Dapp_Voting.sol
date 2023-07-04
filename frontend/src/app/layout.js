@@ -16,7 +16,6 @@ import { publicProvider } from 'wagmi/providers/public';
 const { chains, publicClient } = configureChains(
   [hardhat, goerli, sepolia], 
   [
-    //alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
     publicProvider()
   ]
 );

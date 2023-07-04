@@ -19,11 +19,11 @@ const HomePage = () => {
     const checkOwner = async () => {
       try {
         if (window.ethereum) {
-          const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' }); // Request access to account
+          const [address] = await window.ethereum.request({ method: 'eth_requestAccounts' }); 
           setUserAddress(address);
 
           const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, provider); // Use the correct contract address here
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, provider); 
           const owner = await contract.owner();
           
           setIsOwner(address.toLowerCase() === owner.toLowerCase());

@@ -69,7 +69,6 @@ const Page = () => {
             transaction = await contract.endVotingSession();
             break;
           case 4: // WorkflowStatus.VotingSessionEnded
-            // Wait for a while before tallying votes
             setTimeout(async () => {
               transaction = await contract.tallyVotes();
             }, 1000);
