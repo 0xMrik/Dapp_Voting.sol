@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import VotingContract from '../../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { VStack, Text, Alert, AlertIcon, Flex, Box } from '@chakra-ui/react';
 
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
 const Status = () => {
   const [status, setStatus] = useState(null);
 
@@ -10,7 +12,7 @@ const Status = () => {
     const fetchStatus = async () => {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, provider);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, provider);
         const status = await contract.workflowStatus();
         setStatus(status);
       }

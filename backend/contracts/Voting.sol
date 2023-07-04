@@ -62,7 +62,7 @@ contract Voting is Ownable {
      * @dev Renvoie les détails d'une proposition spécifique
      * @param _id L'ID de la proposition
      */
-    function getOneProposal(uint _id) external onlyVoters view returns (Proposal memory) {
+    function getOneProposal(uint _id) external view returns (Proposal memory) {
         return proposalsArray[_id];
     }
 
@@ -160,7 +160,7 @@ contract Voting is Ownable {
     /**
      * @dev Compte les votes et détermine la proposition gagnante
      */
-    function tallyVotes() external {
+    function tallyVotes() external onlyOwner {
         require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
         
         workflowStatus = WorkflowStatus.VotesTallied;

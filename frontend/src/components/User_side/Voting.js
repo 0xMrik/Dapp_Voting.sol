@@ -3,6 +3,8 @@ import { Button, Input, VStack, useToast } from '@chakra-ui/react';
 import { ethers } from 'ethers';
 import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
 const Voting = () => {
     const [proposalId, setProposalId] = useState('');
     const toast = useToast();
@@ -20,7 +22,7 @@ const Voting = () => {
             } else if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
-                const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, signer);
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, signer);
                 const transaction = await contract.setVote(proposalId);
                 await transaction.wait();
                 toast({

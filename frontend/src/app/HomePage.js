@@ -5,6 +5,9 @@ import Link from 'next/link';
 import VotingContract from '../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 import { Box, Button, Heading, VStack, Spinner, Text, Alert, AlertIcon, AlertTitle } from '@chakra-ui/react';
 
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+console.log(CONTRACT_ADDRESS)
+
 
 const HomePage = () => {
   const [userAddress, setUserAddress] = useState(null);
@@ -20,7 +23,7 @@ const HomePage = () => {
           setUserAddress(address);
 
           const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, provider); // Use the correct contract address here
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, provider); // Use the correct contract address here
           const owner = await contract.owner();
           
           setIsOwner(address.toLowerCase() === owner.toLowerCase());
@@ -28,7 +31,7 @@ const HomePage = () => {
           throw new Error('Veuillez connecter votre wallet');
         }
       } catch (err) {
-        setError('Erreur lors de la vérification du propriétaire du contrat. Veuillez réessayer ultérieurement.');
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -47,7 +50,7 @@ const HomePage = () => {
         <Spinner size="xl" />
       ) : error ? (
         <Box p={4} color="red.500">
-          {error}
+          {error.message}
         </Box>
       ) : userAddress ? (
         <>

@@ -368,4 +368,3 @@ describe("endVotingSession function", function () {
 });
 
 })
-

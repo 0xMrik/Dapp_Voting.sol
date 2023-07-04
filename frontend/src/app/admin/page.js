@@ -11,6 +11,8 @@ import VoteResult from '../../components/Common/Result/VoteResult';
 import { Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
 import Link from 'next/link';
 
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
 const Page = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,9 +23,8 @@ const Page = () => {
       try {
         if (window.ethereum) {
           const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const contract = new ethers.Contract('0x9E3001AA15E932e1e61F580cA175B99C04a20B6B', VotingContract.abi, provider);
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, provider);
           const status = await contract.workflowStatus();
-
           setStatus(status);
         }
       } catch (err) {
@@ -41,7 +42,7 @@ const Page = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(
-        '0x9E3001AA15E932e1e61F580cA175B99C04a20B6B',
+        CONTRACT_ADDRESS,
         VotingContract.abi,
         signer
       );
@@ -56,17 +57,16 @@ const Page = () => {
             transaction = await contract.endProposalsRegistering();
             break;
           case 2: // WorkflowStatus.ProposalsRegistrationEnded
-            if (await contract.workflowStatus() === 2) {
-              transaction = await contract.startVotingSession();
-            }
+            transaction = await contract.startVotingSession();
             break;
           case 3: // WorkflowStatus.VotingSessionStarted
             transaction = await contract.endVotingSession();
             break;
           case 4: // WorkflowStatus.VotingSessionEnded
-            if (await contract.workflowStatus() === 4) {
+            // Wait for a while before tallying votes
+            setTimeout(async () => {
               transaction = await contract.tallyVotes();
-            }
+            }, 1000);
             break;
           default:
             console.log('The workflow is already finished.');
@@ -84,13 +84,13 @@ const Page = () => {
   const getComponent = () => {
     switch (status) {
       case 0: // WorkflowStatus.RegisteringVoters
-        return <RegisterVoter advanceWorkflow={advanceWorkflow} />;
+        return <RegisterVoter />;
       case 1: // WorkflowStatus.ProposalsRegistrationStarted
       case 2: // WorkflowStatus.ProposalsRegistrationEnded
-        return <ProposalsRegistration advanceWorkflow={advanceWorkflow} />;
+        return <ProposalsRegistration />;
       case 3: // WorkflowStatus.VotingSessionStarted
       case 4: // WorkflowStatus.VotingSessionEnded
-        return <Voting advanceWorkflow={advanceWorkflow} />;
+        return <Voting />;
       case 5: // WorkflowStatus.VotesTallied
         return <VoteResult />;
       default:
@@ -109,26 +109,29 @@ const Page = () => {
 
   if (loading) {
     return <Spinner size="xl" />;
-  }
+}
 
-  if (error) {
+if (error) {
     return <Text>Error: {error}</Text>;
-  }
-
-  return (
-    <div>
-      <Header />
-      <Status />
-      <Flex justifyContent="center" mt="4" p="2">
-        <Button colorScheme="green" onClick={advanceWorkflow}>
-          Advance Workflow
-        </Button>
-      </Flex>
-      <Box m="4" p="5" borderWidth="1px" borderRadius="lg" boxShadow="md" backgroundColor="gray.50">
-        {getComponent()}
-      </Box>
-    </div>
-  );
-};
-
-export default Page;
+}
+    return (
+      <div>
+        <Header />
+        <Status />
+        <Flex justifyContent="center" mt="4" p="2">
+          <Button
+            colorScheme="green"
+            onClick={advanceWorkflow}
+            isDisabled={status === 5} 
+          >
+            Advance Workflow
+          </Button>
+        </Flex>
+        <Box m="4" p="5" borderWidth="1px" borderRadius="lg" boxShadow="md" backgroundColor="gray.50">
+          {getComponent()}
+        </Box>
+      </div>
+    );
+  };
+  
+  export default Page;
