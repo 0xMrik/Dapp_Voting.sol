@@ -6,6 +6,8 @@ async function main() {
 
   await voting.deployed();
 
+  let deployerAddress = await voting.signer.getAddress();
+  console.log("Voting contract deployed by:", deployerAddress);
   console.log("Voting contract deployed to:", voting.address);
 }
 
