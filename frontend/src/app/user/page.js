@@ -9,8 +9,6 @@ import ProposalsRegistration from '../../components/User_side/ProposalsRegistrat
 import Voting from '../../components/User_side/Voting';
 import VoteResult from '../../components/Common/Result/VoteResult';
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-
 const PageUser = () => {
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -22,7 +20,7 @@ const PageUser = () => {
                 if (window.ethereum) {
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     const signer = provider.getSigner();
-                    const contract = new ethers.Contract(CONTRACT_ADDRESS, VotingContract.abi, signer);
+                    const contract = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', VotingContract.abi, signer);
                     const status = await contract.workflowStatus();
                     setStatus(status);
                 }

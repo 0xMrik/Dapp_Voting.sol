@@ -1,15 +1,21 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
-import RegisterVoter from '../../components/Admin_side/registerVoter';
-import ProposalsRegistration from '../../components/Admin_side/ProposalsRegistration';
-import Voting from '../../components/Admin_side/Voting';
+import { Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
+import Link from 'next/link';
+
+// Importing components
 import Header from '../../components/Common/Header/Header';
 import Status from '../../components/Common/Status/Status';
 import VoteResult from '../../components/Common/Result/VoteResult';
-import { Text, Spinner, Button, Flex, Box } from '@chakra-ui/react';
-import Link from 'next/link';
+import RegisterVoter from '../../components/Admin_side/RegisterVoter';
+import ProposalsRegistrationStart from '../../components/Admin_side/ProposalsRegistrationStart';
+import ProposalsRegistrationEnd from '../../components/Admin_side/ProposalsRegistrationEnd';
+import VotingStart from '../../components/Admin_side/VotingStart';
+import VotingEnd from '../../components/Admin_side/VotingEnd';
+
+// Importing contract
+import VotingContract from '../../../../backend/artifacts/contracts/Voting.sol/Voting.json';
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
@@ -86,11 +92,13 @@ const Page = () => {
       case 0: // WorkflowStatus.RegisteringVoters
         return <RegisterVoter />;
       case 1: // WorkflowStatus.ProposalsRegistrationStarted
+        return <ProposalsRegistrationStart />
       case 2: // WorkflowStatus.ProposalsRegistrationEnded
-        return <ProposalsRegistration />;
+        return <ProposalsRegistrationEnd />;
       case 3: // WorkflowStatus.VotingSessionStarted
+        return <VotingStart />
       case 4: // WorkflowStatus.VotingSessionEnded
-        return <Voting />;
+        return <VotingEnd />;
       case 5: // WorkflowStatus.VotesTallied
         return <VoteResult />;
       default:
